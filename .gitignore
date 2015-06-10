@@ -1,5 +1,11 @@
 # Created by https://www.gitignore.io
 
+.direnv
+.envrc
+.DS_Store
+db.sqlite3
+ml-10m.zip
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
