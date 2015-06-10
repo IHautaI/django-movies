@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+{% extends "ratings/detail.html" %}
+{% block content %}
+
+<head>
+
+  <title>{{movie}}</title>
+
+</head>
+
+<body>
+
+  <h1>{{movie}}</h1>
+  <p>
+    Average rating for this movie: {{avg}}
+  </p>
+
+  Ratings for this movie (User: Rating):
+  <ul>
+    {% for rater, rating in ratings %}
+      <li><a href="{% url 'ratings:rater-detail' rater_id=rater %}">{{rater}}</a>:
+          {{rating}}</li>
+
+    {% endfor %}
+  </ul>
+
+{% endblock %}

@@ -3,20 +3,22 @@ from .models import Rater, Movie, Rating
 # Register your models here.
 class RaterAdmin(admin.ModelAdmin):
 
-    readonly_fields = ('uid', 'ratings', 'average_rating')
+    readonly_fields = ('id', 'average_rating')
 
-    fieldsets = [(None, {'fields': ['uid', 'ratings', 'average_rating']})]
+    fieldsets = [(None, {'fields': ['id', 'average_rating']})]
 
 
 class MovieAdmin(admin.ModelAdmin):
 
-    readonly_fields = ('get_ratings', 'genre', 'average_rating',)
+    readonly_fields = ('get_ratings', 'average_rating',)
 
-    fieldsets = [(None, {'fields': ['mid', 'title', 'get_ratings',
-                                    'average_rating', 'genre']})]
+    fieldsets = [(None, {'fields': ['id', 'title', 'get_ratings',
+                                    'average_rating']})]
 
 class RatingAdmin(admin.ModelAdmin):
-    fieldsets = [(None, {'fields': ['rater', 'movie', 'rating', 'timestamp']})]
+    fieldsets = [(None, {'fields': ['rater', 'movie', 'rating']})]
+
+
 
 admin.site.register(Rater, RaterAdmin)
 admin.site.register(Movie, MovieAdmin)

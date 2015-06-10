@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <title>Top 20 Movies</title>
+
+</head>
+
+<body>
+
+  <h1>Top 20 Movies</h1>
+
+  <ul>
+    {% for movie in top_movie_list %}
+      <li><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">{{movie}}
+          </a></li>
+    {% endfor %}
+  </ul>
+
+  </div>
+    <a href="{% url 'ratings:ratings-index' %}">Ratings Index</a>
+  </div>
+</body>
+
+</html>

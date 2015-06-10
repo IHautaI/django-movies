@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+{% extends "ratings/detail.html" %}
+{% block content %}
+  <h1>User {{rater.id}}</h1>
+
+  <p>Average rating given by this user: {{avg}}</p>
+
+  Highest Rated Movies:
+  <ul>
+    <p>
+    {% for rating in ratings %}
+
+      <li><a href="{% url 'ratings:movie-detail' movie_id=rating.movie.id %}">
+          {{rating.movie}}</a>, {{rating.rating}}</li>
+
+    {% endfor %}
+    </p>
+  </ul>
+
+  Most Similar Users:
+  <ul>
+    <p>
+      {% for user in most_similar %}
+
+      <li><a href='{% url 'ratings:rater-detail' rater_id=user.id %}'>
+          User {{user.id}}</a></li>
+
+      {% endfor %}
+    </p>
+  </ul>
+
+  Suggested Movies:
+  <ul>
+    {% for movie in suggested %}
+
+      <li><a href='{% url 'ratings:movie-detail' movie.id %}'>{{movie}}</a>
+
+    {% endfor %}
+  </ul>
+
+{% endblock %}
