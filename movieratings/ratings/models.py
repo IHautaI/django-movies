@@ -71,7 +71,7 @@ class Rater(models.Model):
             raters = filter(lambda x: x[1], map(lambda x: \
                             (x, self.distance(x)), raters))
 
-            raters = sorted(raters, key=lambda x: x[1])
+            raters = sorted(raters, key=lambda x: x[1])[:idx]
 
             return [rater[0] for rater in raters]
 
