@@ -9,11 +9,14 @@
 
 <body>
 
-  <h1> Welome to the Ratings app! </h1>
+  <h1> Welcome to the Ratings app! </h1>
 
   <ul>
-    <li><a href="{% url 'ratings:movie-top' %}">View Top Movies</a></li>
+    <li><a href='{% url 'ratings:movie-top' %}'>View Top Movies</a></li>
+
+    <li><a href='{% url 'accounts:login' %}'>Log in</a></li>
   </ul>
+
 
 </body>
 

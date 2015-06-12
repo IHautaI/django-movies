@@ -1,11 +1,13 @@
 from django.db import models
-from django.db.models import Avg
+from django.db.models import Avg, Count
 from math import sqrt
+from django.contrib.auth.models import User
 
 
 class Rater(models.Model):
     age = models.IntegerField('age', default=0)
     zip_code = models.CharField('zipcode', max_length=40)
+    user = models.OneToOneField(User, null=True)
 
     def top_unseen(self, idx=5):
         """
@@ -25,20 +27,19 @@ class Rater(models.Model):
         The average rating given
         by this user
         """
-        return Rating.objects.filter(rater= \
-                            self.id).aggregate(Avg('rating'))['rating__avg']
+        return round(Rating.objects.filter(rater= \
+                            self.id).aggregate(Avg('rating'))['rating__avg'], 1)
 
     def top_seen(self, idx=20):
         """
         returns top 20 ratings by this user
         """
-        queryset = self.rating_set.select_related('movie')
+        queryset = self.rating_set.all()
         if queryset.exists():
             if idx > queryset.count():
                 idx = queryset.count()
 
-            return map(lambda x: (x.rating, x.movie), sorted(queryset, \
-                       key=lambda x: x.rating)[:idx])
+            return sorted(queryset, key=lambda x: x.rating, reverse=True)[:idx]
         return None
 
     def distance(self, other):
@@ -46,12 +47,10 @@ class Rater(models.Model):
         The euclidean distance
         between this user and other
         """
-        ours = self.rating_set.all()
-        theirs = other.rating_set.all()
-        dist = []
-        for item in ours:
-            if theirs.filter(movie=item.movie).exists():
-                dist.append(item.rating - theirs.get(movie=item.movie).rating)
+        ours = self.rating_set.values('movie__id', 'rating')
+        theirs = other.rating_set.values('movie__id', 'rating')
+        dist = [item1['rating'] - item2['rating'] for item1 in ours for item2 \
+                in theirs if item1['movie__id'] == item2['movie__id']]
 
         if dist:
             return sqrt(sum(map(lambda x: x**2, dist)))
@@ -63,17 +62,18 @@ class Rater(models.Model):
         returns a list of the 'idx' most
         similar users by euclidean distance
         """
-        raters = Rater.objects.exclude(pk=self.id)
+        movies = self.rating_set.values('movie')
+        raters = Rating.objects.exclude(rater__id=self.id).filter(\
+                                        movie__id__in=movies).values('rater')
+
         if raters.exists():
             if idx > raters.count():
                 idx = raters.count()
 
-            raters = filter(lambda x: x[1], map(lambda x: \
-                            (x, self.distance(x)), raters))
+            raters = {self.distance(Rater.objects.get(id=x['rater'])): x for x in raters}
 
-            raters = sorted(raters, key=lambda x: x[1])[:idx]
+            return [raters[item] for item in sorted([item for item in raters], reverse=True)[:idx]]
 
-            return [rater[0] for rater in raters]
 
         return None
 
@@ -106,7 +106,7 @@ class Movie(models.Model):
         returns tuples of rater_id, rating
         for this movie
         """
-        return map(lambda x: (x.rater.id, x.rating), self.rating_set.all())
+        return map(lambda x: (x.rater.user.username, x.rating), self.rating_set.all())
 
     def average_rating(self):
         """
@@ -125,15 +125,14 @@ class Movie(models.Model):
         returns the top 'idx' movies
         by rating
         """
-        queryset = Movie.objects.all()
-        queryset = list(filter(lambda x: len(x.rating_set.all()) > rates, queryset))
-        if queryset:
-            if len(queryset) < idx:
-                return sorted(queryset, key=lambda x: x.average_rating(), \
-                              reverse=True)
+        queryset = Movie.objects.values('title', 'id').annotate(rating_count=\
+                    Count('rating__rating'), rating_avg=Avg('rating__rating'\
+                    )).filter(rating_count__gt=rates).order_by('-rating_avg'\
+                    )[:idx]
 
-            return sorted(queryset, key=lambda x: x.average_rating(), \
-                          reverse=True)[:idx]
+        if queryset.exists():
+            return queryset
+
 
         return ['No movies found!']
 
@@ -152,6 +151,14 @@ class Rating(models.Model):
 
     class Meta:
         unique_together = ('movie', 'rater',)
+
+
+def create_users_for_ratings():
+    for item in Rater.objects.all():
+        item.user = User.objects.get(id=User.objects.create(username=item.id, \
+                     email='{}@ex.org'.format(item.id), password=item.id).id)
+
+        item.save()
 
 """
 class Genre(models.Model):

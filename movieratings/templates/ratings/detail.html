@@ -2,7 +2,7 @@
 <html>
 
 <body>
-
+  {% csrf_token %}
 {% block content %}
 
 {% endblock %}
@@ -12,6 +12,9 @@
   </div>
   <div>
     <a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a>
+  </div>
+  <div>
+    <a href='{% url 'accounts:logout' %}'>Log Out</a>
   </div>
 
 </body>

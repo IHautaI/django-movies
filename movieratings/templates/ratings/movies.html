@@ -10,12 +10,12 @@
 
   <h1>Top 20 Movies</h1>
 
-  <ul>
+  <ol>
     {% for movie in top_movie_list %}
-      <li><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">{{movie}}
-          </a></li>
+      <li><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
+          {{movie.title}}</a></li>
     {% endfor %}
-  </ul>
+  </ol>
 
   </div>
     <a href="{% url 'ratings:ratings-index' %}">Ratings Index</a>

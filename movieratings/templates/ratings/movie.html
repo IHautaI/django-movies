@@ -19,8 +19,7 @@
   Ratings for this movie (User: Rating):
   <ul>
     {% for rater, rating in ratings %}
-      <li><a href="{% url 'ratings:rater-detail' rater_id=rater %}">{{rater}}</a>:
-          {{rating}}</li>
+      <li>{{rater}}: {{rating}}</li>
 
     {% endfor %}
   </ul>

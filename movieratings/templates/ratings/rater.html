@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 {% extends "ratings/detail.html" %}
+
 {% block content %}
   <h1>User {{rater.id}}</h1>
 
@@ -11,13 +12,14 @@
     <p>
     {% for rating in ratings %}
 
-      <li><a href="{% url 'ratings:movie-detail' movie_id=rating.movie.id %}">
-          {{rating.movie}}</a>, {{rating.rating}}</li>
+      <li> {{rating.rating}}, <a href="{% url 'ratings:movie-detail' movie_id=rating.movie.id %}">
+          {{rating.movie}}</a></li>
 
     {% endfor %}
     </p>
   </ul>
 
+<!---
   Most Similar Users:
   <ul>
     <p>
@@ -36,7 +38,7 @@
 
       <li><a href='{% url 'ratings:movie-detail' movie.id %}'>{{movie}}</a>
 
-    {% endfor %}
+   {% endfor %}
   </ul>
-
+-->
 {% endblock %}

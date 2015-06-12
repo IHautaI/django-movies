@@ -1,42 +1,50 @@
-from django.conf import settings
-import pandas as pd
+import csv
+import json
 
-settings.configure(DEBUG=True, TEMPLATE_DEBUG=True)
+print("Converting users...")
+users = []
+with open("data/users.dat") as infile:
+    reader = csv.reader((line.replace("::", ";") for line in infile),
+                        delimiter=";")
+    for row in reader:
+        users.append({"model": "ratings.Rater",
+                      "pk": row[0],
+                      "fields": {
+                          "age": int(row[2]),
+                          "zip_code": row[4]
+                      }})
 
+with open("./fixtures/users.json", "w") as outfile:
+    outfile.write(json.dumps(users))
 
-from ratings.models import Rater, Movie, Rating, Genre
+print("Converting movies...")
+movies = []
+with open("data/movies.dat", encoding="windows-1252") as infile:
+    reader = csv.reader((line.replace("::", ";") for line in infile),
+                        delimiter=";")
+    for row in reader:
+        movies.append({"model": "ratings.Movie",
+                       "pk": row[0],
+                       "fields": {
+                           "title": row[1]
+                       }})
 
+with open("./fixtures/movies.json", "w") as outfile:
+    outfile.write(json.dumps(movies))
 
+print("Converting ratings...")
+ratings = []
+with open("data/ratings.dat") as infile:
+    reader = csv.reader((line.replace("::", ";") for line in infile),
+                        delimiter=";")
+    for idx, row in enumerate(reader):
+        ratings.append({"model": "ratings.Rating",
+                        "pk": idx + 1,
+                        "fields": {
+                            "rater": row[0],
+                            "movie": row[1],
+                            "rating": float(row[2])
+                        }})
 
-ratings = pd.read_csv('ratings.dat', sep='::', engine='python')
-movies = pd.read_csv('movies.dat', sep='::', engine='python')
-
-ratings.columns = ['uid', 'mid', 'rating', 'timestamp']
-movies.columns = ['mid', 'title', 'genre']
-
-
-def make_movie(mid, title, genres):
-    for item in genres:
-        if not Genre.objects.all().get(name=genre):
-            Genre.objects.create(name=genre)
-
-    a = Movie.objects.create(mid=mid, title=title)
-
-    for item in genres:
-        Genre.objects.get(name=item).movie_set.add(a)
-
-def make_rater(uid):
-    Rater.objects.create(uid=uid)
-
-def make_rating(uid, mid, rating, timestamp):
-    if not Rater.objects.get(uid=uid):
-        make_rater(uid)
-
-    user = Rater.objects.get(uid=uid)
-    movie = Movie.objects.get(mid=mid)
-    Rating.objects.create(user=user, movie=movie, rating=rating,
-                          timestamp=timestamp)
-
-for idx in movies.index:
-    args = tuple(movies.xs[idx])
-    make_movie(*args)
+with open("./fixtures/ratings.json", "w") as outfile:
+    outfile.write(json.dumps(ratings))

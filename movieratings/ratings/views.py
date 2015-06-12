@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
 
 from .models import Movie, Rater
-# Create your views here.
+
 
 def index(request):
     return render(request, 'ratings/index.html')
@@ -17,9 +19,10 @@ def movie_detail(request, movie_id):
                                     'avg':round(movie.average_rating(), 1),
                                     'ratings':movie.get_ratings()})
 
-def rater_detail(request, rater_id):
-    rater = get_object_or_404(Rater, pk=rater_id)
+@login_required
+def rater_detail(request):
+    rater = get_object_or_404(Rater, user=request.user)
     return render(request, 'ratings/rater.html', {'rater':rater,
-                  'ratings':rater.top_seen(), 'avg':rater.average_rating(),
-                  'most_similar':rater.most_similar(),
-                  'suggested':rater.suggestions()})
+                  'ratings':rater.top_seen(), 'avg':rater.average_rating()})#,
+                  #'most_similar':rater.most_similar(),
+                  #'suggested':rater.suggestions()})
