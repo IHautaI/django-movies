@@ -143,7 +143,7 @@ class Movie(models.Model):
 class Rating(models.Model):
     movie = models.ForeignKey('Movie')
     rater = models.ForeignKey('Rater')
-    rating = models.FloatField()
+    rating = models.IntegerField()
     #timestamp = models.DateField()
 
     def __str__(self):

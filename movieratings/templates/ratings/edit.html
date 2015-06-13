@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+
+{% extends "ratings/detail.html" %}
+
+{% block content %}
+<h3>Rating for {{movie}}</h3>
+<form method="post" action="{% url 'ratings:edit' movie_id=movie_id user_id=user_id %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="Rate" />
+</form>
+{% endblock %}

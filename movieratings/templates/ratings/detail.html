@@ -2,21 +2,21 @@
 <html>
 
 <body>
-  {% csrf_token %}
-{% block content %}
 
+{% block content %}
 {% endblock %}
 
-  <div>
-    <a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a>
-  </div>
-  <div>
-    <a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a>
-  </div>
-  <div>
-    <a href='{% url 'accounts:logout' %}'>Log Out</a>
-  </div>
+  <ul>
+    <li><a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a></li>
+    <li><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></li>
 
+    {% if user.is_authenticated %}
+    <li><a href='{% url 'ratings:rater-detail' %}'>Home</a></li>
+    <li><a href='{% url 'accounts:logout' %}'>Log Out</a></li>
+    {% else %}
+    <li><a href='{% url 'accounts:login' %}'>Log In</a></li>
+    {% endif %}
+  </ul>
 </body>
 
 

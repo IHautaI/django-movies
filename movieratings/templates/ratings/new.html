@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+{% extends "ratings/detail.html" %}
+
+{% block content %}
+<h3>New Rating</h3>
+<form method="post" action="{% url 'ratings:rate' user_id=user_id %}">
+  {% csrf_token %}
+  <p>
+  Movie: {{ form.movie }}
+  </p>
+  <p>
+  Rating: {{ form.rating }}
+  </p>
+  <input type="submit" value="Rate" />
+</form>
+{% endblock %}

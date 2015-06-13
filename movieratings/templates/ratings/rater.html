@@ -4,20 +4,33 @@
 
 {% block content %}
   <h1>User {{rater.id}}</h1>
+  <div>
+  Email: {{email}}
+  </div>
 
   <p>Average rating given by this user: {{avg}}</p>
 
   Highest Rated Movies:
-  <ul>
-    <p>
-    {% for rating in ratings %}
 
-      <li> {{rating.rating}}, <a href="{% url 'ratings:movie-detail' movie_id=rating.movie.id %}">
-          {{rating.movie}}</a></li>
+    <ul>
+      <p>
+        {% for rating in ratings %}
+        <form method='post' action='{% url 'ratings:edit' user_id=user.id movie_id=rating.movie.id %}'>
+          {% csrf_token %}
+        <li>{{rating.rating}}, <a href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a>
+            <input type='submit' value='Edit Rating'/>
+        </li>
+        </form>
 
-    {% endfor %}
-    </p>
-  </ul>
+      {% endfor %}
+      </p>
+    </ul>
+    <form method='get' action='{% url 'ratings:rate' user_id=user.id %}' >
+      {% csrf_token %}
+      <p>
+        Movie Title: <input type='text' name='movie_name'/>
+      <input type='submit' value='Create New Rating'/></p>
+    </form>
 
 <!---
   Most Similar Users:
