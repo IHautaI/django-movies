@@ -1,22 +1,32 @@
 <!DOCTYPE html>
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 <html>
+<head>
+
+
+</head>
 
 <body>
-
-{% block content %}
-{% endblock %}
-
-  <ul>
-    <li><a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a></li>
-    <li><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></li>
+<style> body {color: #332211; background-color: #778899} a {color: #000000} </style>
+  <table>
+    <style>th, td {padding: 5px}</style>
+    <tr>
+    <td><a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a></td>
+    <td><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></td>
 
     {% if user.is_authenticated %}
-    <li><a href='{% url 'ratings:rater-detail' %}'>Home</a></li>
-    <li><a href='{% url 'accounts:logout' %}'>Log Out</a></li>
+    <td><a href='{% url 'ratings:rater-detail' %}'>Home</a></td>
+    <td><a href='{% url 'accounts:logout' %}'>Log Out</a></td>
     {% else %}
-    <li><a href='{% url 'accounts:login' %}'>Log In</a></li>
+    <td><a href='{% url 'accounts:login' %}'>Log In</a></td>
     {% endif %}
-  </ul>
+    </tr>
+  </table>
+  {% block content %}
+  {% endblock %}
+
 </body>
 
 

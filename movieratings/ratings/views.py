@@ -10,10 +10,12 @@ from .models import Movie, Rater, Rating
 def index(request):
     return render(request, 'ratings/index.html')
 
+
 def movie_index(request):
     top_movie_list = Movie.top_movies(20)
     context = {'top_movie_list': top_movie_list}
     return render(request, 'ratings/movies.html', context)
+
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
@@ -26,19 +28,23 @@ def movie_detail(request, movie_id):
     else:
         rate = 0
 
+    context= {'movie':movie, 'avg':round(movie.average_rating(), 1),
+              'ratings':movie.get_ratings(), 'rate':rate}
 
-    return render(request, 'ratings/movie.html', {'movie':movie,
-                                    'avg':round(movie.average_rating(), 1),
-                                    'ratings':movie.get_ratings(), 'rate':rate})
+    return render(request, 'ratings/movie.html', context)
+
 
 @login_required
 def rater_detail(request):
     rater = get_object_or_404(Rater, user_id=request.user.id)
-    return render(request, 'ratings/rater.html', {'rater':rater, \
-                  'email':request.user.email, 'ratings':rater.top_seen(), \
-                  'avg':rater.average_rating()})#,
-                  #'most_similar':rater.most_similar(),
-                  #'suggested':rater.suggestions()})
+
+    context = {'rater':rater, 'email':request.user.email, \
+               'ratings':rater.top_seen(), 'avg':rater.average_rating()}
+               #'most_similar':rater.most_similar(),
+               #'suggested':rater.suggestions()}
+
+    return render(request, 'ratings/rater.html', context)
+
 
 @login_required
 def edit(request, user_id, movie_id):
@@ -47,11 +53,11 @@ def edit(request, user_id, movie_id):
 
 
     if request.method == 'POST':
-        form = RatingForm(request.POST)
+        rating_form = RatingForm(request.POST)
 
-        if form.is_valid():
+        if rating_form.is_valid():
             rating = get_object_or_404(Rating, movie=movie, rater=rater)
-            rating.rating = form.save(commit=False).rating
+            rating.rating = rating_form.save(commit=False).rating
             rating.movie = movie
             rating.rater = rater
             rating.save()
@@ -60,13 +66,14 @@ def edit(request, user_id, movie_id):
 
 
     else:
-        form = RatingForm()
+        rating_form = RatingForm()
 
     rating = get_object_or_404(Rating, movie=movie, rater=rater)
 
-    return render(request, 'ratings/edit.html', \
-                  {'form': form, 'rating': rating, 'user_id': user_id,\
-                  'movie_id': movie.id, 'movie': movie})
+    context =  {'rating_form': rating_form, 'rating': rating, \
+                'user_id': user_id, 'movie_id': movie.id, 'movie': movie}
+
+    return render(request, 'ratings/edit.html', context)
 
 
 @login_required
@@ -96,4 +103,5 @@ def new_rating(request, user_id):
 
     rater = get_object_or_404(Rater, user_id=request.user.id)
 
-    return render(request, 'ratings/new.html', {'form': form, 'user_id': user_id})
+    context = {'form': form, 'user_id': user_id}
+    return render(request, 'ratings/new.html', context)

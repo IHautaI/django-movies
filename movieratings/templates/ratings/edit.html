@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-
 {% extends "ratings/detail.html" %}
+
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
 {% block content %}
 <h3>Rating for {{movie}}</h3>
-<form method="post" action="{% url 'ratings:edit' movie_id=movie_id user_id=user_id %}">
+<form method="post" action='{% url 'ratings:edit' movie_id=movie_id user_id=user_id %}' class="form">
   {% csrf_token %}
-  {{ form.as_p }}
-  <input type="submit" value="Rate" />
+  <style> .form-control {width: 55px} </style>
+  {% bootstrap_form rating_form %}
+  {% bootstrap_button 'Rate' %}
 </form>
 {% endblock %}

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 
 {% extends "ratings/detail.html" %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
 {% block content %}
   <h1>User {{rater.id}}</h1>
@@ -8,23 +11,25 @@
   Email: {{email}}
   </div>
 
-  <p>Average rating given by this user: {{avg}}</p>
+  <p>Average rating given: {{avg}}</p>
+
 
   Highest Rated Movies:
-
-    <ul>
-      <p>
+    <table>
+      <tr><th> Rating </th> <th> Movie </th> <th> </th> </tr>
         {% for rating in ratings %}
+        <tr>
         <form method='post' action='{% url 'ratings:edit' user_id=user.id movie_id=rating.movie.id %}'>
           {% csrf_token %}
-        <li>{{rating.rating}}, <a href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a>
-            <input type='submit' value='Edit Rating'/>
-        </li>
-        </form>
+        <td>{{rating.rating}}  </td>
+        <td><a href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a></td>
+        <td><input type='submit' value='Edit Rating'/></td>
 
+        </form>
+        </tr>
       {% endfor %}
-      </p>
-    </ul>
+    </table>
+
     <form method='get' action='{% url 'ratings:rate' user_id=user.id %}' >
       {% csrf_token %}
       <p>
@@ -34,24 +39,23 @@
 
 <!---
   Most Similar Users:
-  <ul>
-    <p>
+  <table>
       {% for user in most_similar %}
-
-      <li><a href='{% url 'ratings:rater-detail' rater_id=user.id %}'>
-          User {{user.id}}</a></li>
+      <tr>
+      <a href='{% url 'ratings:rater-detail' rater_id=user.id %}'>
+          User {{user.id}}</a>
+      </tr>
 
       {% endfor %}
-    </p>
-  </ul>
+  </table>
 
   Suggested Movies:
-  <ul>
+  <table>
     {% for movie in suggested %}
 
-      <li><a href='{% url 'ratings:movie-detail' movie.id %}'>{{movie}}</a>
+      <tr><a href='{% url 'ratings:movie-detail' movie.id %}'>{{movie}}</tr>
 
    {% endfor %}
-  </ul>
+  </table>
 -->
 {% endblock %}

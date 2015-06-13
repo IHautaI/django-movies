@@ -1,25 +1,27 @@
 <!DOCTYPE html>
-<html>
-<head>
+{% extends 'ratings/detail.html' %}
 
-  <title>Top 20 Movies</title>
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
 
-</head>
-
-<body>
+{% block content %}
 
   <h1>Top 20 Movies</h1>
 
   <ol>
     {% for movie in top_movie_list %}
       <li><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
-          {{movie.title}}</a></li>
+          {{movie.title}}</a>
+          {% if user.is_authenticated %}
+            {% if rate == 0 %}
+              <form action='{% url 'ratings:new' user_id=user.id %}'>
+                {% bootstrap_button 'Rate Movie' %}
+              </form>
+            {% endif %}
+          {% endif %}
+          </li>
     {% endfor %}
   </ol>
 
-  </div>
-    <a href="{% url 'ratings:ratings-index' %}">Ratings Index</a>
-  </div>
-</body>
-
-</html>
+{% endblock %}
