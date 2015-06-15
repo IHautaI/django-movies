@@ -2,12 +2,15 @@ from django.db import models
 from django.db.models import Avg, Count
 from math import sqrt
 from django.contrib.auth.models import User
+import numpy as np
+from math import sqrt
 
 
 class Rater(models.Model):
     age = models.IntegerField('age', default=0)
     zip_code = models.CharField('zipcode', max_length=40)
     user = models.OneToOneField(User, null=True)
+    descr = models.CharField(max_length=511)
 
     def top_unseen(self, idx=5):
         """
@@ -47,35 +50,31 @@ class Rater(models.Model):
         The euclidean distance
         between this user and other
         """
-        ours = self.rating_set.values('movie__id', 'rating')
-        theirs = other.rating_set.values('movie__id', 'rating')
-        dist = [item1['rating'] - item2['rating'] for item1 in ours for item2 \
-                in theirs if item1['movie__id'] == item2['movie__id']]
+        movies = [item['id'] for item in Movie.objects.order_by('id').values('id')]
+        num = len(movies)
+        ours = np.zeros(num)
+        theirs = np.zeros(num)
 
-        if dist:
-            return sqrt(sum(map(lambda x: x**2, dist)))
-        else:
+        for item in self.rating_set.all():
+            ours[movies.index(item.movie_id)] = item.rating
+
+        for item in other.rating_set.all():
+            theirs[movies.index(item.movie_id)] = item.rating
+
+        count = sum(1 for idx in range(num) if ours[idx] !=0 and theirs[idx] !=0 )
+        if count < 10:
             return 0
+
+        return sqrt(((ours - theirs)**2).sum())
+
 
     def most_similar(self, idx=5):
         """
-        returns a list of the 'idx' most
-        similar users by euclidean distance
+        returns users with smallest (nonzero) distance
+        to user
         """
-        movies = self.rating_set.values('movie')
-        raters = Rating.objects.exclude(rater__id=self.id).filter(\
-                                        movie__id__in=movies).values('rater')
-
-        if raters.exists():
-            if idx > raters.count():
-                idx = raters.count()
-
-            raters = {self.distance(Rater.objects.get(id=x['rater'])): x for x in raters}
-
-            return [raters[item] for item in sorted([item for item in raters], reverse=True)[:idx]]
-
-
-        return None
+        return sorted((item for item in Rater.objects.exclude(id=self.id)),\
+                      key=lambda x: self.distance(x))[:idx]
 
     def suggestions(self):
         users = self.most_similar()
@@ -99,14 +98,14 @@ class Rater(models.Model):
 
 class Movie(models.Model):
     title = models.CharField(max_length=255, default='')
-    #genre = models.ManyToManyField('Genre')
 
     def get_ratings(self):
         """
         returns tuples of rater_id, rating
         for this movie
         """
-        return map(lambda x: (x.rater.user.username, x.rating), self.rating_set.all())
+        return map(lambda x: (x.rater, x.rating), \
+                   self.rating_set.all().order_by('-rating'))
 
     def average_rating(self):
         """
@@ -144,7 +143,8 @@ class Rating(models.Model):
     movie = models.ForeignKey('Movie')
     rater = models.ForeignKey('Rater')
     rating = models.IntegerField()
-    #timestamp = models.DateField()
+    descr = models.CharField(max_length=511, default=' ')
+    timestamp = models.DateTimeField(null=True)
 
     def __str__(self):
         return "{}: {}".format(str(self.movie), self.rating)
@@ -160,10 +160,10 @@ def create_users_for_ratings():
 
         item.save()
 
-"""
+
 class Genre(models.Model):
     name = models.CharField(max_length=40)
+    movies = models.ManyToManyField('Movie')
 
     def __str__(self):
         return self.name
-"""

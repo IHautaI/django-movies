@@ -9,9 +9,20 @@
 
 
 {% block content %}
-  <h1>{{movie}}</h1>
+  <h2>{{movie}}</h2>
   <p>
-    Average rating for this movie: {{avg}}
+    Genres:
+    <table>
+      <tr>
+      {% for item in genres %}
+        <td><a href='{% url 'ratings:by_genre' item.id %}'>{{item}}</a></td>
+      {% endfor %}
+      </tr>
+    </table>
+  </p>
+
+  <p>
+    Average rating: {{avg}}
   </p>
   {% if user.is_authenticated %}
   <p>
@@ -28,10 +39,10 @@
 
   {% endif %}
 
-  Ratings for this movie (User: Rating):
+  All Ratings (User: Rating):
   <ul>
     {% for rater, rating in ratings %}
-      <li>{{rater}}: {{rating}}</li>
+      <li><a href='{% url 'ratings:rater-detail' user_id=rater %}'>{{rater}}</a>: {{rating}}</li>
 
     {% endfor %}
   </ul>

@@ -9,7 +9,7 @@
 </head>
 
 <body>
-<style> body {color: #332211; background-color: #778899} a {color: #000000} </style>
+<style> body {color: #332211; background-color: #778895} a {color: #000000} </style>
   <table>
     <style>th, td {padding: 5px}</style>
     <tr>
@@ -17,7 +17,7 @@
     <td><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></td>
 
     {% if user.is_authenticated %}
-    <td><a href='{% url 'ratings:rater-detail' %}'>Home</a></td>
+    <td><a href='{% url 'ratings:rater-detail' user_id=user.id %}'>Home</a></td>
     <td><a href='{% url 'accounts:logout' %}'>Log Out</a></td>
     {% else %}
     <td><a href='{% url 'accounts:login' %}'>Log In</a></td>

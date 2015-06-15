@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+{% extends 'ratings/detail.html' %}
+
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block content %}
+
+  <h1>20 Most Rated Movies</h1>
+
+  <table>
+    {% for movie in most_rated %}
+      <tr><td><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
+          {{movie.title}}</a></td><td>({{movie.rates}} ratings)</td></tr>
+    {% endfor %}
+  </table>
+
+{% endblock %}
