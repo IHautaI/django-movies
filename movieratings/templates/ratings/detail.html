@@ -17,7 +17,6 @@
       <ul class="nav navbar-nav">
         <li><a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a></li>
         <li><a href='{% url 'ratings:most-rated' %}'>Most Rated Movies</a></li>
-        <li><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></li>
 
         {% if user.is_authenticated %}
           <li><a href='{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>Home</a></li>
