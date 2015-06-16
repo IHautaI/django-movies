@@ -124,13 +124,12 @@ class Movie(models.Model):
         returns the top 'idx' movies
         by rating
         """
-        queryset = Movie.objects.values('title', 'id').annotate(rating_count=\
-                    Count('rating__rating'), rating_avg=Avg('rating__rating'\
+        queryset = Movie.objects.annotate(rating_count=\
+                    Count('rating'), rating_avg=Avg('rating__rating'\
                     )).filter(rating_count__gt=rates).order_by('-rating_avg'\
                     )[:idx]
 
-        if queryset.exists():
-            return queryset
+        return queryset
 
 
         return ['No movies found!']

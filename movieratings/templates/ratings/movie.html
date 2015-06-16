@@ -33,11 +33,11 @@
     </form>
     {% else %}
       <p>
-        Your rating for this movie: {{rate}}
+        Your rating for this movie: {{rate.rating}} on {{rate.timestamp}}
       </p>
       Your notes on this rating:
       <p>
-        {{ descr }}
+        {{ rate.descr }}
       </p>
         {% endif %}
       </p>

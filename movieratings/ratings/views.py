@@ -22,18 +22,18 @@ def movie_index(request):
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
-    rate = 0
+    rate = None
     descr = ''
     if request.user.is_authenticated():
         rating = Rating.objects.filter(movie=movie, rater=request.user.rater)
         if rating.exists():
-            rate = rating[0].rating
-            descr = rating[0].description
+            rate = rating
+
 
     ratings = Rating.objects.filter(movie_id=movie.id).select_related('rater')
 
     context= {'movie':movie, 'avg':round(movie.average_rating(), 1),
-              'rate':rate, 'descr':descr, 'ratings':ratings}
+              'rate':rate, 'ratings':ratings}
 
     return render(request, 'ratings/movie.html', context)
 

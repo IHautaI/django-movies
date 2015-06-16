@@ -12,7 +12,7 @@
   <ol>
     {% for movie in top_movie_list %}
       <li><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
-          {{movie.title}}</a>
+          {{movie.title}}</a>  {{movie.rating_avg}}
           {% if user.is_authenticated %}
             {% if rate == 0 %}
               <form action='{% url 'ratings:new' user_id=user.id %}'>
