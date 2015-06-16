@@ -50,12 +50,6 @@
       {% endfor %}
     </table>
 
-    <form method='get' action='{% url 'ratings:rate-list' rater_id=user.rater.id %}'>
-      {% csrf_token %}
-        Movie Title: <input type='text' name='movie_name'/>
-      <button type='submit'><span class='glyphicon glyphicon-search'></span></button></p>
-    </form>
-
     {% else %}
 
     <table>

@@ -21,6 +21,13 @@
         {% if user.is_authenticated %}
           <li><a href='{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>Home</a></li>
           <li><a href='{% url 'accounts:logout' %}'>Log Out</a></li>
+
+          <li><form method='get' action='{% url 'ratings:search' %}'>
+            {% csrf_token %}
+              Search Titles: <input type='text' name='movie_name'/>
+            <button type='submit'><span class='glyphicon glyphicon-search'></span></button>
+          </form></li>
+
         {% else %}
           <li><a href='{% url 'accounts:login' %}'>Log In</a></li>
         {% endif %}

@@ -106,21 +106,23 @@ def edit(request, rater_id, movie_id):
 
 
 @login_required
-def rate_list(request, rater_id):
-    rater = get_object_or_404(Rater, id=rater_id)
+def search(request):
+
     if request.method == 'GET':
         if 'movie_name' in request.GET:
             name = request.GET['movie_name']
-            ids = [item['movie_id'] for item in rater.rating_set.values('movie_id')]
-            queryset = Movie.objects.filter(title__icontains=name).exclude(id__in=ids)
+            queryset = Movie.objects.filter(title__icontains=name)
 
             if not queryset.exists():
-                return redirect('ratings:rate-error')
+                return redirect('ratings:search-error')
 
             context = {'movie_name': name, 'movies':queryset}
-            return render(request, 'ratings/rate-list.html', context)
+            return render(request, 'ratings/search.html', context)
 
-    return render(request, 'ratings/rate-error.html')
+    return render(request, 'ratings/search-error.html')
+
+def search_error(request):
+    return render(request, 'ratings/search-error.html')
 
 @login_required
 def new_rating(request, user_id, movie_id):

@@ -13,5 +13,6 @@ urlpatterns = [
     url(r'^rate/(?P<user_id>[0-9]+)/(?P<movie_id>[0-9]+)$', views.new_rating, name='rate'),
     url(r'^most-rated/', views.most_rated, name='most-rated'),
     url(r'^genre/(?P<genre_id>[0-9]+)/$', views.by_genre, name='by_genre'),
-    url(r'^(?P<rater_id>[0-9]+)/rate-list/$', views.rate_list, name='rate-list' ),
+    url(r'^search/$', views.search, name='search'),
+    url(r'^search-error/', views.search_error, name='search-error'),
 ]
