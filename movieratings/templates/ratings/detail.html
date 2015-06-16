@@ -2,31 +2,38 @@
 {% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
-<html>
-<head>
 
+{% load staticfiles %}
+
+<html lang="en">
+<head>
+  <link rel='stylesheet' href = '{% static "style.css" %}'/>
 </head>
 
 <body>
-<style> body {color: #332211; background-color: #778895} a {color: #000000} </style>
-  <table>
-    <style>th, td {padding: 5px}</style>
-    <tr>
-    <td><a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a></td>
-    <td><a href='{% url 'ratings:most-rated' %}'>Most Rated Movies</a></td>
-    <td><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></td>
 
-    {% if user.is_authenticated %}
-    <td><a href='{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>Home</a></td>
-    <td><a href='{% url 'accounts:logout' %}'>Log Out</a></td>
-    {% else %}
-    <td><a href='{% url 'accounts:login' %}'>Log In</a></td>
-    {% endif %}
-    </tr>
-  </table>
-  <hr>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <ul class="nav navbar-nav">
+        <li><a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a></li>
+        <li><a href='{% url 'ratings:most-rated' %}'>Most Rated Movies</a></li>
+        <li><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></li>
+
+        {% if user.is_authenticated %}
+          <li><a href='{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>Home</a></li>
+          <li><a href='{% url 'accounts:logout' %}'>Log Out</a></li>
+        {% else %}
+          <li><a href='{% url 'accounts:login' %}'>Log In</a></li>
+        {% endif %}
+
+      </ul>
+    </div>
+  </nav>
+
+  <div class="content">
   {% block content %}
   {% endblock %}
+  </div>
 
 </body>
 

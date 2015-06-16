@@ -10,7 +10,7 @@ from .models import Movie, Rater, Rating, Genre
 
 
 def index(request):
-    return render(request, 'ratings/index.html')
+    return render(request, 'index.html')
 
 
 def movie_index(request):
@@ -22,18 +22,21 @@ def movie_index(request):
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
-    rate = None
+    rated = False
+    rating = None
     descr = ''
     if request.user.is_authenticated():
         rating = Rating.objects.filter(movie=movie, rater=request.user.rater)
         if rating.exists():
-            rate = rating
+            rating = rating[0]
+            rated = True
+            messages.add_message(request, messages.SUCCESS, str(rating))
 
 
     ratings = Rating.objects.filter(movie_id=movie.id).select_related('rater')
 
-    context= {'movie':movie, 'avg':round(movie.average_rating(), 1),
-              'rate':rate, 'ratings':ratings}
+    context= {'movie': movie, 'avg': round(movie.average_rating(), 1),
+              'rated': rated, 'rating': rating, 'ratings': ratings}
 
     return render(request, 'ratings/movie.html', context)
 
@@ -84,11 +87,9 @@ def edit(request, rater_id, movie_id):
 
         if rating_form.is_valid():
             rating = get_object_or_404(Rating, movie=movie, rater=rater)
-            rating.timestamp = datetime.now()
-            rating.rating = rating_form.save(commit=False).rating
-            rating.descr = rating_form.descr
-            rating.movie = movie
-            rating.rater = rater
+            rating.timestamp = datetime.datetime.now()
+            form = rating_form.save(commit=False)
+            rating.description = form.description
             rating.save()
 
             return redirect('ratings:rater-detail')

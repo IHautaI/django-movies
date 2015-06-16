@@ -23,6 +23,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/login/$', auth_views.login),
     url(r'^accounts/', include('django.contrib.auth.urls', namespace='accounts')),
-    url(r'^register$', views.registration, name='register'),
+    url(r'^register/$', views.registration, name='register'),
     url(r'^$', views.index, name='index'),
 ]

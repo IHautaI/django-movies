@@ -6,23 +6,31 @@
 {% bootstrap_javascript %}
 
 {% block content %}
-
-    <h2>User {{rater.id}}</h2>
-    <p>
-      Email: {{email}}
-    </p>
-    {% if user.is_authenticated and theirs %}
-      <form method='post' action= '{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>
-        {% csrf_token %}
-        <style> .form-control {width:500px}</style>
-      {% bootstrap_form form %}
-      {% bootstrap_button 'save description' %}
-      </form>
-    {% else %}
+    <div class="container">
+      <h2>User {{rater.id}}</h2>
       <p>
-        {{rater.description}}
+        Email: {{email}}
       </p>
-    {% endif %}
+    </div>
+    <div class="container">
+      {% if user.is_authenticated and theirs %}
+        <form method='post' action= '{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>
+          {% csrf_token %}
+        <div class='row'>
+        <div class='col-sm-6'>
+          {% bootstrap_form form layout='inline' %}
+        </div>
+        <div class='col-sm-1'>
+          <button type='submit'><span class='glyphicon glyphicon-pencil'></button>
+        </div>
+      </div>
+        </form>
+      {% else %}
+        <p>
+          {{rater.description}}
+        </p>
+      {% endif %}
+    </div>
 
   <p>Average rating given: {{avg}}</p>
 
@@ -36,7 +44,7 @@
           {% csrf_token %}
         <td>{{rating.rating}}  </td>
         <td><a href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a></td>
-        <td><input type='submit' value='Edit Rating'/></td>
+        <td><button  type='submit'> <span class='glyphicon glyphicon-pencil'></span></button></td>
         </form>
         </tr>
       {% endfor %}
@@ -45,7 +53,7 @@
     <form method='get' action='{% url 'ratings:rate-list' rater_id=user.rater.id %}'>
       {% csrf_token %}
         Movie Title: <input type='text' name='movie_name'/>
-      <input type='submit' value='Find Movie to Rate'/></p>
+      <button type='submit'><span class='glyphicon glyphicon-search'></span></button></p>
     </form>
 
     {% else %}
@@ -55,7 +63,7 @@
         {% for rating in ratings %}
         <tr>
         <td>{{rating.rating}}  </td>
-        <td><a href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a></td>
+        <td><a id='{{rating.movie.id}}' href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a></td>
         </tr>
       {% endfor %}
     </table>

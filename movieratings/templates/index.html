@@ -1,20 +1,9 @@
 <!DOCTYPE html>
-<html>
 
-<head>
+{% extends 'ratings/detail.html' %}
 
-  <title>Ratings App</title>
+{% block content %}
 
-</head>
+  <h1> Ratings App</h1>
 
-<body>
-
-  <h1> Welcome! </h1>
-
-  <ul>
-    <li><a href="{% url 'ratings:ratings-index' %}">Ratings App</a></li>
-  </ul>
-
-</body>
-
-</html>
+{% endblock %}
