@@ -14,7 +14,7 @@
     Genres:
     <table>
       <tr>
-      {% for item in genres %}
+      {% for item in movie.genre_set.all %}
         <td><a href='{% url 'ratings:by_genre' item.id %}'>{{item}}</a></td>
       {% endfor %}
       </tr>
@@ -46,8 +46,8 @@
 
   All Ratings (User: Rating):
   <ul>
-    {% for rater, rating in ratings %}
-      <li><a href='{% url 'ratings:rater-detail' user_id=rater %}'>{{rater}}</a>: {{rating}}</li>
+    {% for rating in ratings %}
+      <li><a href='{% url 'ratings:rater-detail' rater_id=rating.rater_id %}'>{{rating.rater}}</a>: {{rating.rating}}</li>
 
     {% endfor %}
   </ul>

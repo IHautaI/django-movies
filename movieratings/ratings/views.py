@@ -30,23 +30,28 @@ def movie_detail(request, movie_id):
             rate = rating[0].rating
             descr = rating[0].description
 
-    ratings = list(movie.get_ratings())
-    genres = list(movie.genre_set.all())
+    ratings = Rating.objects.filter(movie_id=movie.id).select_related('rater')
 
     context= {'movie':movie, 'avg':round(movie.average_rating(), 1),
-              'ratings':ratings, 'rate':rate, 'descr':descr,
-              'genres':genres}
+              'rate':rate, 'descr':descr, 'ratings':ratings}
+
     return render(request, 'ratings/movie.html', context)
 
 
-def rater_detail(request, user_id=None):
-    if not user_id and request.user.is_authenticated():
-        user_id = request.user.id
-    rater = get_object_or_404(Rater, user_id=user_id)
+def rater_detail(request, rater_id=None):
     theirs = False
 
-    if request.user.id == user_id:
-        theirs = True
+    if rater_id is not None:
+        if int(request.user.rater.id) == int(rater_id):
+            theirs = True
+
+    else:
+        if request.user.is_authenticated():
+            rater_id = request.user.rater.id
+            theirs = True
+
+
+    rater = get_object_or_404(Rater, id=rater_id)
 
     if request.method == 'POST':
         form = RaterDescrForm(request.POST)
@@ -58,9 +63,10 @@ def rater_detail(request, user_id=None):
             return redirect('ratings:rater-detail')
 
     form = RaterDescrForm(instance=rater)
+    ratings = rater.rating_set.order_by('-rating').select_related('movie')
 
     context = {'rater':rater, 'email':rater.user.email, \
-               'ratings':rater.rating_set.order_by('-rating'), \
+               'ratings':ratings, \
                'avg':rater.average_rating(), 'theirs': theirs,
                'form': form}
                #'most_similar':rater.most_similar(),
@@ -69,10 +75,9 @@ def rater_detail(request, user_id=None):
 
 
 @login_required
-def edit(request, user_id, movie_id):
+def edit(request, rater_id, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
-    rater = get_object_or_404(Rater, user_id=request.user.id)
-
+    rater = get_object_or_404(Rater, id=rater_id)
 
     if request.method == 'POST':
         rating_form = RatingForm(request.POST)
@@ -95,13 +100,13 @@ def edit(request, user_id, movie_id):
     rating = get_object_or_404(Rating, movie=movie, rater=rater)
 
     context =  {'rating_form': rating_form, 'rating': rating, \
-                'user_id': user_id, 'movie_id': movie.id, 'movie': movie}
+                'rater_id':rater_id, 'movie_id': movie.id, 'movie': movie}
     return render(request, 'ratings/edit.html', context)
 
 
 @login_required
-def rate_list(request, user_id):
-    rater = get_object_or_404(Rater, user_id=user_id)
+def rate_list(request, rater_id):
+    rater = get_object_or_404(Rater, id=rater_id)
     if request.method == 'GET':
         if 'movie_name' in request.GET:
             name = request.GET['movie_name']

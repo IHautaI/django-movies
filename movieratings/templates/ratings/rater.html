@@ -12,7 +12,7 @@
       Email: {{email}}
     </p>
     {% if user.is_authenticated and theirs %}
-      <form method='post' action= '{% url 'ratings:rater-detail' user_id=user.id %}'>
+      <form method='post' action= '{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>
         {% csrf_token %}
         <style> .form-control {width:500px}</style>
       {% bootstrap_form form %}
@@ -32,7 +32,7 @@
       <tr><th> Rating </th> <th> Movie </th> <th> </th> </tr>
         {% for rating in ratings %}
         <tr>
-        <form method='post' action='{% url 'ratings:edit' user_id=user.id movie_id=rating.movie.id %}'>
+        <form method='post' action='{% url 'ratings:edit' rater_id=user.rater.id movie_id=rating.movie.id %}'>
           {% csrf_token %}
         <td>{{rating.rating}}  </td>
         <td><a href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a></td>
@@ -42,13 +42,14 @@
       {% endfor %}
     </table>
 
-    <form method='get' action='{% url 'ratings:rate-list' user_id=user.id %}'>
+    <form method='get' action='{% url 'ratings:rate-list' rater_id=user.rater.id %}'>
       {% csrf_token %}
         Movie Title: <input type='text' name='movie_name'/>
       <input type='submit' value='Find Movie to Rate'/></p>
     </form>
 
     {% else %}
+
     <table>
       <tr><th> Rating </th> <th> Movie </th> <th></th> </tr>
         {% for rating in ratings %}

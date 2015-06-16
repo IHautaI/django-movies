@@ -13,10 +13,11 @@
     <style>th, td {padding: 5px}</style>
     <tr>
     <td><a href='{% url 'ratings:movie-top' %}'>Top 20 Movies</a></td>
+    <td><a href='{% url 'ratings:most-rated' %}'>Most Rated Movies</a></td>
     <td><a href='{% url 'ratings:ratings-index' %}'>Ratings Index</a></td>
 
     {% if user.is_authenticated %}
-    <td><a href='{% url 'ratings:rater-detail' user_id=user.id %}'>Home</a></td>
+    <td><a href='{% url 'ratings:rater-detail' rater_id=user.rater.id %}'>Home</a></td>
     <td><a href='{% url 'accounts:logout' %}'>Log Out</a></td>
     {% else %}
     <td><a href='{% url 'accounts:login' %}'>Log In</a></td>
