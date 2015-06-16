@@ -12,7 +12,7 @@
   <ol>
     {% for movie in top_movie_list %}
       <li><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
-          {{movie.title}}</a>{{ movie.rating_avg|floatformat:2 }}</li>
+          {{movie.title}}</a> Average: {{ movie.rating_avg|floatformat:2 }}</li>
     {% endfor %}
   </ol>
 

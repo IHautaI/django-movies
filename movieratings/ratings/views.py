@@ -44,7 +44,7 @@ def movie_detail(request, movie_id):
 def rater_detail(request, rater_id=None):
     theirs = False
 
-    if rater_id is not None:
+    if rater_id is not None and request.user.is_authenticated():
         if int(request.user.rater.id) == int(rater_id):
             theirs = True
 
