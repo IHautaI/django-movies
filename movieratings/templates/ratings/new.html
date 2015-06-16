@@ -6,11 +6,12 @@
 {% bootstrap_javascript %}
 
 {% block content %}
-<h3>New Rating</h3>
-<form method="post" action="{% url 'ratings:rate' user_id=user_id %}" class="form">
-  <style> .form-control {width: 190px} </style>
+<h3>Rating: {{movie.title}}</h3>
+<form method="post" action='{% url 'ratings:rate' user_id=user_id movie_id=movie.id %}' class="form">
   {% csrf_token %}
+
   {% bootstrap_form form %}
   {% bootstrap_button 'Rate' %}
+
 </form>
 {% endblock %}

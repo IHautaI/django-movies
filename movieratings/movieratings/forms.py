@@ -17,42 +17,37 @@ class RatingForm(forms.ModelForm):
     RATING_CHOICES = ((1,  '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'))
     rating = forms.TypedChoiceField(widget=forms.Select(), \
                    choices=RATING_CHOICES, coerce=int, empty_value=None)
-                   
-    descr = forms.CharField()
+
+    description = forms.CharField(required=False)
 
     class Meta:
         model = Rating
-        fields = ('rating', 'descr',)
+        fields = ('rating', 'description',)
 
 
 def in_set(item):
-    if not isinstance(item, int):
-        raise ValidationError('Input value was not a valid choice')
-
-    if item not in range(1, 6):
-        raise ValidationError('Input value was not a valid choice')
-
+    #if int(item) not in range(1, 6):
+    #    raise ValidationError('Input value was not a valid choice')
+    pass
+    
 
 class NewRatingForm(forms.ModelForm):
-
-    movie = forms.ModelChoiceField(queryset=None, empty_label=None, validators=[in_set])
-
-    def __init__(self, choices, *args, **kwargs):
-        super(NewRatingForm, self).__init__(*args, **kwargs)
-        self.fields['movie'].queryset = choices
-
     RATING_CHOICES = ((1,  '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'))
-    rating = forms.TypedChoiceField(widget=forms.Select(), choices=RATING_CHOICES, coerce=int, empty_value=None)
-    descr = forms.CharField()
+
+    rating = forms.ChoiceField(widget=forms.Select(), \
+                                    choices=RATING_CHOICES)#, \
+                                    #empty_value=None, \
+                                    #validators=[in_set])
+    description = forms.CharField(required=False)
 
     class Meta:
         model = Rating
-        fields = ('rating', 'movie')
+        fields = ('rating', 'description',)
 
 
 class RaterDescrForm(forms.ModelForm):
-    descr = forms.CharField()
+    description = forms.CharField()
 
     class Meta:
         model = Rater
-        fields = ('descr',)
+        fields = ('description',)

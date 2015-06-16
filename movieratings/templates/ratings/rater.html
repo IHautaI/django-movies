@@ -14,13 +14,14 @@
     {% if user.is_authenticated and theirs %}
       <form method='post' action= '{% url 'ratings:rater-detail' user_id=user.id %}'>
         {% csrf_token %}
+        <style> .form-control {width:500px}</style>
       {% bootstrap_form form %}
-      {% bootstrap_button 'submit' %}
+      {% bootstrap_button 'save description' %}
       </form>
     {% else %}
-    <p>
-      {{rater.descr}}
-    </p>
+      <p>
+        {{rater.description}}
+      </p>
     {% endif %}
 
   <p>Average rating given: {{avg}}</p>
@@ -41,11 +42,10 @@
       {% endfor %}
     </table>
 
-    <form method='get' action='{% url 'ratings:rate' user_id=user.id %}' >
+    <form method='get' action='{% url 'ratings:rate-list' user_id=user.id %}'>
       {% csrf_token %}
-      <p>
         Movie Title: <input type='text' name='movie_name'/>
-      <input type='submit' value='Create New Rating'/></p>
+      <input type='submit' value='Find Movie to Rate'/></p>
     </form>
 
     {% else %}

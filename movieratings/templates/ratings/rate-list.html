@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{% extends 'ratings/detail.html' %}
+
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block content %}
+
+  <h1>Movies containing "{{ movie_name }}"</h1>
+
+  <table>
+    {% for movie in movies %}
+      <tr><td><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
+          {{movie.title}}</a></td>
+      <form action='{% url 'ratings:rate' user_id=user.id movie_id=movie.id %}'>
+        <td>
+          {% bootstrap_button 'Rate' %}
+        </td>
+      </form
+      </tr>
+    {% endfor %}
+  </table>
+
+{% endblock %}

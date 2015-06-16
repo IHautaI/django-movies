@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Count
 import datetime
+from django.contrib import messages
 
 from movieratings.forms import RatingForm, NewRatingForm, RaterDescrForm
 from .models import Movie, Rater, Rating, Genre
@@ -21,18 +22,20 @@ def movie_index(request):
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
+    rate = 0
+    descr = ''
     if request.user.is_authenticated():
         rating = Rating.objects.filter(movie=movie, rater=request.user.rater)
         if rating.exists():
             rate = rating[0].rating
-        else:
-            rate = 0
-    else:
-        rate = 0
+            descr = rating[0].description
+
+    ratings = list(movie.get_ratings())
+    genres = list(movie.genre_set.all())
 
     context= {'movie':movie, 'avg':round(movie.average_rating(), 1),
-              'ratings':movie.get_ratings(), 'rate':rate,
-              'genres':movie.genre_set.all()}
+              'ratings':ratings, 'rate':rate, 'descr':descr,
+              'genres':genres}
     return render(request, 'ratings/movie.html', context)
 
 
@@ -49,7 +52,7 @@ def rater_detail(request, user_id=None):
         form = RaterDescrForm(request.POST)
 
         if form.is_valid():
-            rater.descr = form.descr
+            rater.description = form.description
             rater.save()
 
             return redirect('ratings:rater-detail')
@@ -97,39 +100,53 @@ def edit(request, user_id, movie_id):
 
 
 @login_required
-def new_rating(request, user_id):
-    rater = get_object_or_404(Rater, user_id=request.user.id)
+def rate_list(request, user_id):
+    rater = get_object_or_404(Rater, user_id=user_id)
     if request.method == 'GET':
-        name = request.GET['movie_name']
-        ids = [item['movie_id'] for item in rater.rating_set.values('movie_id')]
-        queryset = Movie.objects.filter(title__icontains=name).exclude(id__in=ids)
+        if 'movie_name' in request.GET:
+            name = request.GET['movie_name']
+            ids = [item['movie_id'] for item in rater.rating_set.values('movie_id')]
+            queryset = Movie.objects.filter(title__icontains=name).exclude(id__in=ids)
 
-        if name == '' or queryset.count() > 100:
-            return redirect('ratings:rater-detail')
+            if not queryset.exists():
+                return redirect('ratings:rate-error')
 
-        if not queryset.exists():
-            # put message here
+            context = {'movie_name': name, 'movies':queryset}
+            return render(request, 'ratings/rate-list.html', context)
 
-            return redirect('ratings:rater-detail')
+    return render(request, 'ratings/rate-error.html')
+
+@login_required
+def new_rating(request, user_id, movie_id):
+    rater = get_object_or_404(Rater, user_id=request.user.id)
+    movie = get_object_or_404(Movie, id=movie_id)
 
     if request.method == 'POST':
         form = NewRatingForm(request.POST)
 
         if form.is_valid():
-            movie = get_object_or_404(Movie, title=form.title)
-            rating = Rating.objects.create(movie=movie, rater=rater, \
-                       rating=form.rating, timestamp=datetime.now(),
-                       descr=form.descr)
+            rating = form.save(commit=False)
+            rating.movie = movie
+            rating.rater = rater
+            rating.timestamp = datetime.datetime.now()
+
             rating.save()
+            messages.add_message(request, messages.SUCCESS, \
+                                 'New Rating Successfully Added!')
+
+        else:
+            messages.add_message(request, messages.ERROR, \
+                                  'New Rating Not Created')
+
 
         return redirect('ratings:rater-detail')
 
     else:
-        form = NewRatingForm(queryset)
+        form = NewRatingForm()
 
     rater = get_object_or_404(Rater, user_id=request.user.id)
 
-    context = {'form': form, 'user_id': user_id}
+    context = {'form': form, 'user_id': user_id, 'movie': movie}
     return render(request, 'ratings/new.html', context)
 
 

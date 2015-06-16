@@ -10,7 +10,7 @@ class Rater(models.Model):
     age = models.IntegerField('age', default=0)
     zip_code = models.CharField('zipcode', max_length=40)
     user = models.OneToOneField(User, null=True)
-    descr = models.CharField(max_length=511)
+    description = models.CharField(max_length=511)
 
     def top_unseen(self, idx=5):
         """
@@ -143,7 +143,7 @@ class Rating(models.Model):
     movie = models.ForeignKey('Movie')
     rater = models.ForeignKey('Rater')
     rating = models.IntegerField()
-    descr = models.CharField(max_length=511, default=' ')
+    description = models.CharField(max_length=511, default=' ')
     timestamp = models.DateTimeField(null=True)
 
     def __str__(self):
