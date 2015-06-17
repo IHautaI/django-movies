@@ -12,7 +12,7 @@
   <div class='well'>
     <div class='row'>
       {% for movie in movies %}
-        <div class='container {% cycle 'odd' 'even' %} col-sm-4'><a class='{% cycle 'odd' 'even' %}' href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
+        <div class='container {% cycle 'odd' 'even' %} col-sm-4'><a class='{% cycle 'odd' 'even' %}' href="{% url 'ratings:movie-detail' pk=movie.pk %}">
           {{movie.title}}</a>
         </div>
       {% endfor %}

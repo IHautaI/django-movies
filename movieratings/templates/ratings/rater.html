@@ -40,10 +40,10 @@
       <tr><th> Rating </th> <th> Movie </th> <th> </th> </tr>
         {% for rating in ratings %}
         <tr>
-        <form method='post' action='{% url 'ratings:edit' rater_id=user.rater.id movie_id=rating.movie.id %}'>
+        <form method='post' action='{% url 'ratings:edit' rater_id=user.rater.id pk=rating.movie.pk %}'>
           {% csrf_token %}
         <td>{{rating.rating}}  </td>
-        <td><a href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a></td>
+        <td><a href='{% url 'ratings:movie-detail' pk=rating.movie.pk %}'>{{rating.movie}}</a></td>
         <td><button  type='submit'> <span class='glyphicon glyphicon-pencil'></span></button></td>
         </form>
         </tr>
@@ -57,7 +57,7 @@
         {% for rating in ratings %}
         <tr>
         <td>{{rating.rating}}  </td>
-        <td><a id='{{rating.movie.id}}' href='{% url 'ratings:movie-detail' movie_id=rating.movie.id %}'>{{rating.movie}}</a></td>
+        <td><a id='{{rating.movie.pk}}' href='{% url 'ratings:movie-detail' pk=rating.movie.pk %}'>{{rating.movie}}</a></td>
         </tr>
       {% endfor %}
     </table>
@@ -72,7 +72,7 @@
           User user.id</a>
       </tr>
 
-       endfor 
+       endfor
   </table> -->
 <!---
   Suggested Movies:

@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 import datetime
 from django.contrib import messages
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
+
 
 from movieratings.forms import RatingForm, NewRatingForm, RaterDescrForm
 from .models import Movie, Rater, Rating, Genre
@@ -13,32 +16,63 @@ def index(request):
     return render(request, 'index.html')
 
 
-def movie_index(request):
-    top_movie_list = Movie.top_movies(20)
+# def movie_index(request):
+#     top_movie_list = Movie.top_movies(20)
+#
+#     context = {'top_movie_list': top_movie_list}
+#     return render(request, 'ratings/movies.html', context)
 
-    context = {'top_movie_list': top_movie_list}
-    return render(request, 'ratings/movies.html', context)
+class MovieListView(ListView):
+    model = Movie
+    template_name = 'ratings/movies.html'
 
-
-def movie_detail(request, movie_id):
-    movie = get_object_or_404(Movie, pk=movie_id)
-    rated = False
-    rating = None
-    descr = ''
-    if request.user.is_authenticated():
-        rating = Rating.objects.filter(movie=movie, rater=request.user.rater)
-        if rating.exists():
-            rating = rating[0]
-            rated = True
-            messages.add_message(request, messages.SUCCESS, str(rating))
+    def get_queryset(self):
+        return Movie.top_movies(20)
 
 
-    ratings = Rating.objects.filter(movie_id=movie.id).select_related('rater')
+# def movie_detail(request, movie_id):
+#     movie = get_object_or_404(Movie, pk=movie_id)
+#     rated = False
+#     rating = None
+#     descr = ''
+#     if request.user.is_authenticated():
+#         rating = Rating.objects.filter(movie=movie, rater=request.user.rater)
+#         if rating.exists():
+#             rating = rating[0]
+#             rated = True
+#             messages.add_message(request, messages.SUCCESS, str(rating))
+#
+#
+#     ratings = Rating.objects.filter(movie_id=movie.id).select_related('rater')
+#
+#     context= {'movie': movie, 'avg': round(movie.average_rating(), 1),
+#               'rated': rated, 'rating': rating, 'ratings': ratings}
+#
+#     return render(request, 'ratings/movie.html', context)
 
-    context= {'movie': movie, 'avg': round(movie.average_rating(), 1),
-              'rated': rated, 'rating': rating, 'ratings': ratings}
+class MovieDetailView(DetailView):
+    model = Movie
+    template_name = 'ratings/movie.html'
 
-    return render(request, 'ratings/movie.html', context)
+    def get_context_data(self, **kwargs):
+        context = super(MovieDetailView, self).get_context_data(**kwargs)
+
+        if self.request.user.is_authenticated():
+            rating = Rating.objects.filter(movie=self.object, \
+                                           rater=self.request.user.rater)
+
+            if rating.exists():
+                rating = rating[0]
+                rated = True
+            else:
+                rated = False
+
+            context['rated'] = rated
+            context['rating'] = rating
+
+        context['ratings'] = self.object.rating_set.select_related('rater').order_by('-rating')
+
+        return context
 
 
 def rater_detail(request, rater_id=None):
@@ -74,6 +108,7 @@ def rater_detail(request, rater_id=None):
                'form': form}#, 'most_similar':rater.most_similar()}
                #'suggested':rater.suggestions()} these are still waaaay too slow
     return render(request, 'ratings/rater.html', context)
+
 
 
 @login_required
@@ -158,14 +193,21 @@ def new_rating(request, user_id, movie_id):
     return render(request, 'ratings/new.html', context)
 
 
-def most_rated(request):
-    most_rated = Movie.objects.annotate(rates=Count('rating')).order_by('-rates')[:20]
+# def most_rated(request):
+#     most_rated = Movie.objects.annotate(rates=Count('rating')).order_by('-rates')[:20]
+#
+#     context = {'most_rated': most_rated}
+#     return render(request, 'ratings/most_rated.html', context)
 
-    context = {'most_rated': most_rated}
-    return render(request, 'ratings/most_rated.html', context)
+class MostRatedListView(ListView):
+    model = Movie
+    template_name = 'ratings/most_rated.html'
+
+    def get_queryset(self):
+        return Movie.objects.annotate(rates=Count('rating')).order_by('-rates')[:20]
 
 
-def by_genre(request, genre_id):
+def genre_view(request, genre_id):
     genre = get_object_or_404(Genre, id=genre_id)
     movies = genre.movies.all()
 
