@@ -8,6 +8,8 @@
 <html lang="en">
 <head>
   <link rel='stylesheet' href = '{% static "style.css" %}'/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ratings App</title>
 </head>
 
 <body>
@@ -24,7 +26,7 @@
 
           <li><form method='get' action='{% url 'ratings:search' %}'>
             {% csrf_token %}
-              Search Titles: <input type='text' name='movie_name'/>
+              <input type='text' name='movie_name'/>
             <button type='submit'><span class='glyphicon glyphicon-search'></span></button>
           </form></li>
 

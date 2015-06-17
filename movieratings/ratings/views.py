@@ -71,9 +71,8 @@ def rater_detail(request, rater_id=None):
     context = {'rater':rater, 'email':rater.user.email, \
                'ratings':ratings, \
                'avg':rater.average_rating(), 'theirs': theirs,
-               'form': form}
-               #'most_similar':rater.most_similar(),
-               #'suggested':rater.suggestions()}
+               'form': form}#, 'most_similar':rater.most_similar()}
+               #'suggested':rater.suggestions()} these are still waaaay too slow
     return render(request, 'ratings/rater.html', context)
 
 
@@ -123,6 +122,7 @@ def search(request):
 
 def search_error(request):
     return render(request, 'ratings/search-error.html')
+
 
 @login_required
 def new_rating(request, user_id, movie_id):

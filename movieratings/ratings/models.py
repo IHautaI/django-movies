@@ -45,36 +45,25 @@ class Rater(models.Model):
             return sorted(queryset, key=lambda x: x.rating, reverse=True)[:idx]
         return None
 
-    def distance(self, other):
+    def distance(self, ours, theirs):
         """
         The euclidean distance
         between this user and other
         """
-        movies = [item['id'] for item in Movie.objects.order_by('id').values('id')]
-        num = len(movies)
-        ours = np.zeros(num)
-        theirs = np.zeros(num)
-
-        for item in self.rating_set.all():
-            ours[movies.index(item.movie_id)] = item.rating
-
-        for item in other.rating_set.all():
-            theirs[movies.index(item.movie_id)] = item.rating
-
-        count = sum(1 for idx in range(num) if ours[idx] !=0 and theirs[idx] !=0 )
-        if count < 10:
-            return 0
-
-        return sqrt(((ours - theirs)**2).sum())
-
+        return sqrt(sum((ours[idx].rating - theirs[idx].rating)**2 for idx in range(ours.count())))
 
     def most_similar(self, idx=5):
         """
         returns users with smallest (nonzero) distance
         to user
         """
-        return sorted((item for item in Rater.objects.exclude(id=self.id)),\
-                      key=lambda x: self.distance(x))[:idx]
+        ours = self.rating_set.all().select_related('movie')
+        ids = [item.movie_id for item in ours]
+
+        return sorted((item for item in Rater.objects.exclude(id=self.id).prefetch_related('rating_set').filter(rating__movie_id__in=ids)),\
+                      key=lambda x: self.distance(ours, x.rating_set.all().order_by('movie_id')))[:idx]
+
+        # pull in rating objects instead, select related user?
 
     def suggestions(self):
         users = self.most_similar()
