@@ -40,7 +40,7 @@
       <tr><th> Rating </th> <th> Movie </th> <th> </th> </tr>
         {% for rating in ratings %}
         <tr>
-        <form method='post' action='{% url 'ratings:edit' rater_id=user.rater.id pk=rating.movie.pk %}'>
+        <form method='post' action='{% url 'ratings:edit' pk=rating.pk %}'>
           {% csrf_token %}
         <td>{{rating.rating}}  </td>
         <td><a href='{% url 'ratings:movie-detail' pk=rating.movie.pk %}'>{{rating.movie}}</a></td>

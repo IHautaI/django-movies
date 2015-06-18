@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+{% extends "ratings/detail.html" %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block content %}
+<h3>Rating: {{movie.title}}</h3>
+<form method="post" action='{% url 'ratings:rate' user_id=user.id movie_pk=movie.pk %}' class="form">
+  {% csrf_token %}
+
+  {% bootstrap_form form %}
+  {% bootstrap_button 'Rate' %}
+
+</form>
+{% endblock %}

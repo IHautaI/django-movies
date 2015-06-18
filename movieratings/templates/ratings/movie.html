@@ -16,19 +16,19 @@
       <table>
         <tr>
         {% for item in object.genre_set.all %}
-          <td><a href='{% url 'ratings:by_genre' item.id %}'>{{item}}</a></td>
+          <td><a href='{% url 'ratings:by-genre' item.id %}'>{{item}}</a></td>
         {% endfor %}
         </tr>
       </table>
     </p>
-    {{object.pk}}
+
     <p>
       Average rating: {{avg}}
     </p>
     {% if user.is_authenticated %}
     <p>
-    {% comment %}  {% if not rated %}
-      <form method ='get' action='{% url 'ratings:rate' user_id=user.id movie_id=object.pk  %}' class="form">
+      {% if not rated %}
+      <form method ='get' action='{% url 'ratings:rate' user_id=user.id movie_pk=object.pk %}' class="form">
         {% csrf_token %}
         Your rating for this movie: <button type='submit'><span class='glyphicon glyphicon-plus'></span></button>
       </form>
@@ -39,9 +39,9 @@
           </div>
 
           <div class='col-sm-9'>
-            <form method='post' action='{% url 'ratings:edit' rater_id=user.rater.id movie_id=object.pk %}'>
+            <form method='post' action='{% url 'ratings:edit' pk=rating.pk %}'>
               {% csrf_token %}
-            <a href='{% url 'ratings:movie-detail' movie_id=object.pk %}'></a>
+            <a href='{% url 'ratings:movie-detail' pk=object.pk %}'></a>
             <button  type='submit'> <span class='glyphicon glyphicon-pencil'></span></button>
             </form>
           </div>
@@ -59,7 +59,7 @@
             {{ rating.description }}
           </div>
         </div>
-      {% endif %} {% endcomment %}
+      {% endif %}
     </p>
   </div>
 

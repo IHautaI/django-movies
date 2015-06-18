@@ -11,9 +11,10 @@
 
   <ol>
     {% for movie in object_list %}
-      <li><a href="{% url 'ratings:movie-detail' movie_id=movie.id %}">
+      <li><a href="{% url 'ratings:movie-detail' pk=movie.pk %}">
           {{movie.title}}</a> Average: {{ movie.rating_avg|floatformat:2 }}</li>
     {% endfor %}
   </ol>
+   {% bootstrap_pagination page_obj %}
 
 {% endblock %}

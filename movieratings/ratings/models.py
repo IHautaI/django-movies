@@ -108,20 +108,17 @@ class Movie(models.Model):
         return 0
 
     @classmethod
-    def top_movies(cls, idx=6, rates=10):
+    def top_movies(cls, idx=6, rates=20):
         """
         returns the top 'idx' movies
         by rating
         """
-        queryset = Movie.objects.annotate(rating_count=\
-                    Count('rating'), rating_avg=Avg('rating__rating'\
-                    )).filter(rating_count__gt=rates).order_by('-rating_avg'\
-                    )[:idx]
+        queryset = Movie.objects.prefetch_related('rating_set').annotate(\
+                    rating_count= Count('rating'), rating_avg=Avg(\
+                    'rating__rating')).filter(rating_count__gt=rates).order_by(\
+                    '-rating_avg')[:idx]
 
         return queryset
-
-
-        return ['No movies found!']
 
     def __str__(self):
         return str(self.title)

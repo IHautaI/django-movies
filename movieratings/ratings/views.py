@@ -6,49 +6,27 @@ import datetime
 from django.contrib import messages
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView, CreateView
+from django import forms
+from django.core.urlresolvers import reverse
 
-
-from movieratings.forms import RatingForm, NewRatingForm, RaterDescrForm
+#from movieratings.forms import RatingForm, NewRatingForm, RaterDescrForm
+from movieratings.forms import NewRatingForm, RaterDescrForm
 from .models import Movie, Rater, Rating, Genre
 
 
 def index(request):
     return render(request, 'index.html')
 
-
-# def movie_index(request):
-#     top_movie_list = Movie.top_movies(20)
-#
-#     context = {'top_movie_list': top_movie_list}
-#     return render(request, 'ratings/movies.html', context)
-
 class MovieListView(ListView):
     model = Movie
     template_name = 'ratings/movies.html'
+    paginate_by = 20
+    queryset = list(Movie.top_movies(Movie.objects.count()))
 
-    def get_queryset(self):
-        return Movie.top_movies(20)
+    # def get_queryset(self):
+    #     return list(Movie.top_movies(Movie.objects.count()))
 
-
-# def movie_detail(request, movie_id):
-#     movie = get_object_or_404(Movie, pk=movie_id)
-#     rated = False
-#     rating = None
-#     descr = ''
-#     if request.user.is_authenticated():
-#         rating = Rating.objects.filter(movie=movie, rater=request.user.rater)
-#         if rating.exists():
-#             rating = rating[0]
-#             rated = True
-#             messages.add_message(request, messages.SUCCESS, str(rating))
-#
-#
-#     ratings = Rating.objects.filter(movie_id=movie.id).select_related('rater')
-#
-#     context= {'movie': movie, 'avg': round(movie.average_rating(), 1),
-#               'rated': rated, 'rating': rating, 'ratings': ratings}
-#
-#     return render(request, 'ratings/movie.html', context)
 
 class MovieDetailView(DetailView):
     model = Movie
@@ -58,8 +36,12 @@ class MovieDetailView(DetailView):
         context = super(MovieDetailView, self).get_context_data(**kwargs)
 
         if self.request.user.is_authenticated():
-            rating = Rating.objects.filter(movie=self.object, \
-                                           rater=self.request.user.rater)
+            rater = Rater.objects.filter(user=self.request.user)
+            if rater.exists():
+                rating = Rating.objects.filter(movie=self.object, \
+                                               rater=rater)
+            else:
+                rating = Rating.objects.none()
 
             if rating.exists():
                 rating = rating[0]
@@ -69,6 +51,7 @@ class MovieDetailView(DetailView):
 
             context['rated'] = rated
             context['rating'] = rating
+            context['avg'] = round(self.object.average_rating(), 1)
 
         context['ratings'] = self.object.rating_set.select_related('rater').order_by('-rating')
 
@@ -111,33 +94,13 @@ def rater_detail(request, rater_id=None):
 
 
 
-@login_required
-def edit(request, rater_id, movie_id):
-    movie = get_object_or_404(Movie, id=movie_id)
-    rater = get_object_or_404(Rater, id=rater_id)
-
-    if request.method == 'POST':
-        rating_form = RatingForm(request.POST)
-
-        if rating_form.is_valid():
-            rating = get_object_or_404(Rating, movie=movie, rater=rater)
-            rating.timestamp = datetime.datetime.now()
-            form = rating_form.save(commit=False)
-            rating.description = form.description
-            rating.save()
-
-            return redirect('ratings:rater-detail')
-
-
-    else:
-        rating_form = RatingForm()
-
-    rating = get_object_or_404(Rating, movie=movie, rater=rater)
-
-    context =  {'rating_form': rating_form, 'rating': rating, \
-                'rater_id':rater_id, 'movie_id': movie.id, 'movie': movie}
-    return render(request, 'ratings/edit.html', context)
-
+class RatingEditView(UpdateView):
+    model = Rating
+    template_name_suffix = '_update'
+    fields = ['rating', 'description']
+    RATING_CHOICES = ((1,  '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'))
+    widgets = {'rating':forms.ChoiceField(choices=RATING_CHOICES)}
+    success_url = '/ratings/rater/'
 
 @login_required
 def search(request):
@@ -160,9 +123,10 @@ def search_error(request):
 
 
 @login_required
-def new_rating(request, user_id, movie_id):
+def new_rating(request, user_id, movie_pk):
+
     rater = get_object_or_404(Rater, user_id=request.user.id)
-    movie = get_object_or_404(Movie, id=movie_id)
+    movie = get_object_or_404(Movie, id=movie_pk)
 
     if request.method == 'POST':
         form = NewRatingForm(request.POST)
@@ -190,14 +154,17 @@ def new_rating(request, user_id, movie_id):
     rater = get_object_or_404(Rater, user_id=request.user.id)
 
     context = {'form': form, 'user_id': user_id, 'movie': movie}
-    return render(request, 'ratings/new.html', context)
+    return render(request, 'ratings/rating_form.html', context)
+
+    def get_queryset(self):
+
+        return Rating.objects.filter(rater=self.request.user.rater, pk=movie_pk)
+
+    RATING_CHOICES = ((1,  '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'))
+    widgets = {'rating':forms.ChoiceField(choices=RATING_CHOICES)}
+    success_url = 'ratings/rater/'
 
 
-# def most_rated(request):
-#     most_rated = Movie.objects.annotate(rates=Count('rating')).order_by('-rates')[:20]
-#
-#     context = {'most_rated': most_rated}
-#     return render(request, 'ratings/most_rated.html', context)
 
 class MostRatedListView(ListView):
     model = Movie

@@ -1,4 +1,5 @@
 from django.conf.urls import include, url
+from django.contrib.auth.decorators import login_required
 
 from . import views
 
@@ -14,8 +15,9 @@ urlpatterns = [
     url(r'^rater/(?P<rater_id>[0-9]+)/$', views.rater_detail, name='rater-detail'),
     url(r'^rater/$', views.rater_detail, name='rater-detail'),
 
-    url(r'^rate/(?P<user_id>[0-9]+)/(?P<pk>[0-9]+)/$', views.new_rating, name='rate'),
-    url(r'^edit/(?P<rater_id>[0-9]+)/(?P<pk>[0-9]+)/$', views.edit, name='edit'),
+    url(r'^rate/(?P<user_id>[0-9]+)/(?P<movie_pk>[0-9]+)/$', views.new_rating, name='rate'),
+    #url(r'^edit/(?P<rater_id>[0-9]+)/(?P<pk>[0-9]+)/$', views.edit, name='edit'),
+    url(r'rating/edit/(?P<pk>[0-9]+)', login_required(views.RatingEditView.as_view()), name='edit'),
 
     url(r'^search/$', views.search, name='search'),
     url(r'^search-error/', views.search_error, name='search-error'),
